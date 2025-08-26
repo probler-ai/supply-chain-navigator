@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="encountered">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Chain Data Collection Navigator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .breadcrumb {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .breadcrumb-item:not(:last-child)::after {
+            content: '→';
+            margin-left: 8px;
+            color: #adb5bd;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .option-card:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .option-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option-card.uploaded {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .option-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .option-description {
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+
+        .dataset-request {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .dataset-request h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .dataset-request p {
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        .upload-section {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            margin-top: auto;
+        }
+
+        .progress-tracker {
+            padding: 20px 30px;
+            background: #e8f5e9;
+            border-top: 1px solid #c8e6c9;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50 0%, #45a049 100%);
+            transition: width 0.3s ease;
+        }
+
+        .summary {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .summary h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .summary-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .summary-card h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .summary-items {
+            text-align: left;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .summary-items li {
+            margin: 5px 0;
+            list-style: none;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .summary-items li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #28a745;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper label {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .question {
+                font-size: 20px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Supply Chain Data Collection Navigator</h1>
+            <p>Let's identify what data you can provide for analysis</p>
+        </div>
+
+        <div class="breadcrumb" id="breadcrumb">
+            <div class="breadcrumb-item">Start</div>
+        </div>
+
+        <div class="progress-tracker">
+            <div class="progress-info">
+                <span>Progress: <span id="progressText">0%</span></span>
+                <span>Data Collected: <span id="dataCount">0</span> datasets</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="content" id="content">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Data structure from YAML
+        const dataStructure = {
+            root_question: "Which categories of supply chain data can you provide?",
+            categories: [
+                {
+                    id: "core_operational",
+                    label: "Core Operational Systems",
+                    question: "What operational systems data do you have access to?",
+                    children: [
+                        {
+                            id: "erp_wms_tms",
+                            label: "ERP/WMS/TMS Data",
+                            question: "Which warehouse and transportation management data can you share?",
+                            children: [
+                                {
+                                    id: "inventory_data",
+                                    label: "Inventory Data",
+                                    type: "leaf",
+                                    dataset_request: "Please provide access to inventory levels, aging reports, and velocity data across all locations (API credentials or data export)"
+                                },
+                                {
+                                    id: "order_fulfillment",
+                                    label: "Order & Fulfillment Data",
+                                    type: "leaf",
+                                    dataset_request: "Please share order flow patterns, fulfillment times, and bottleneck reports (database access or CSV export)"
+                                },
+                                {
+                                    id: "warehouse_metrics",
+                                    label: "Warehouse Performance",
+                                    type: "leaf",
+                                    dataset_request: "Please provide warehouse capacity utilization and labor productivity metrics (WMS export or API access)"
+                                },
+                                {
+                                    id: "transportation_data",
+                                    label: "Transportation Data",
+                                    type: "leaf",
+                                    dataset_request: "Please share transportation routes, carrier performance, and actual vs. planned costs (TMS data export or API)"
+                                },
+                                {
+                                    id: "returns_data",
+                                    label: "Returns Processing",
+                                    type: "leaf",
+                                    dataset_request: "Please provide returns processing data and root cause analysis reports (system export or database access)"
+                                }
+                            ]
+                        },
+                        {
+                            id: "financial_transaction",
+                            label: "Financial Transaction Data",
+                            question: "What financial and billing data can you provide?",
+                            children: [
+                                {
+                                    id: "freight_invoices",
+                                    label: "Freight Billing",
+                                    type: "leaf",
+                                    dataset_request: "Please share freight invoices and contracted rate tables for invoice audit (CSV, EDI, or API access)"
+                                },
+                                {
+                                    id: "purchase_orders",
+                                    label: "Purchase Order Data",
+                                    type: "leaf",
+                                    dataset_request: "Please provide PO data with terms, lead times, and supplier performance metrics (ERP export or API)"
+                                },
+                                {
+                                    id: "cost_analytics",
+                                    label: "Cost-to-Serve Analytics",
+                                    type: "leaf",
+                                    dataset_request: "Please share cost-to-serve data by customer, product, and channel (financial system export)"
+                                },
+                                {
+                                    id: "working_capital",
+                                    label: "Working Capital Metrics",
+                                    type: "leaf",
+                                    dataset_request: "Please provide working capital metrics tied to inventory positions (financial reports or dashboard access)"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "real_time_feeds",
+                    label: "Real-Time Operational Feeds",
+                    question: "What real-time data streams and IoT data do you have?",
+                    children: [
+                        {
+                            id: "iot_tracking",
+                            label: "IoT and Tracking Data",
+                            question: "Which IoT and tracking systems can you connect?",
+                            children: [
+                                {
+                                    id: "gps_telematics",
+                                    label: "GPS/Telematics",
+                                    type: "leaf",
+                                    dataset_request: "Please provide GPS/telematics API access for trucks showing routes, idle time, and driver behavior"
+                                },
+                                {
+                                    id: "sensor_data",
+                                    label: "Environmental Sensors",
+                                    type: "leaf",
+                                    dataset_request: "Please share temperature/humidity sensor data for cold chain compliance (IoT platform access or data feed)"
+                                },
+                                {
+                                    id: "rfid_scanning",
+                                    label: "RFID/Barcode Data",
+                                    type: "leaf",
+                                    dataset_request: "Please provide RFID/barcode scan data showing product movement (WMS scan logs or real-time feed)"
+                                },
+                                {
+                                    id: "equipment_utilization",
+                                    label: "Equipment Data",
+                                    type: "leaf",
+                                    dataset_request: "Please share equipment utilization data from forklifts, conveyors, and automation systems (IoT or system logs)"
+                                }
+                            ]
+                        },
+                        {
+                            id: "exception_events",
+                            label: "Exception and Event Data",
+                            question: "What exception and event tracking data is available?",
+                            children: [
+                                {
+                                    id: "carrier_delays",
+                                    label: "Carrier Notifications",
+                                    type: "leaf",
+                                    dataset_request: "Please provide carrier delay notifications and weather disruption alerts (EDI 214/API or email integration)"
+                                },
+                                {
+                                    id: "quality_failures",
+                                    label: "Quality Control",
+                                    type: "leaf",
+                                    dataset_request: "Please share quality control failure logs and downstream impact tracking (QMS export or database)"
+                                },
+                                {
+                                    id: "stockout_events",
+                                    label: "Stockout Tracking",
+                                    type: "leaf",
+                                    dataset_request: "Please provide stockout event logs and expedite shipment triggers (inventory system alerts or reports)"
+                                },
+                                {
+                                    id: "customer_complaints",
+                                    label: "Customer Issues",
+                                    type: "leaf",
+                                    dataset_request: "Please share customer complaint data tied to facilities or carriers (CRM export or ticketing system)"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "external_integration",
+                    label: "External Integration Points",
+                    question: "What partner and market data can you access?",
+                    children: [
+                        {
+                            id: "trading_partners",
+                            label: "Trading Partner Data",
+                            question: "Which partner performance data can you share?",
+                            children: [
+                                {
+                                    id: "supplier_performance",
+                                    label: "Supplier Metrics",
+                                    type: "leaf",
+                                    dataset_request: "Please provide supplier on-time delivery and quality metrics (vendor scorecards or system export)"
+                                },
+                                {
+                                    id: "demand_signals",
+                                    label: "Customer Demand",
+                                    type: "leaf",
+                                    dataset_request: "Please share customer demand signals and forecast accuracy data (EDI 830/850 or planning system)"
+                                },
+                                {
+                                    id: "3pl_metrics",
+                                    label: "3PL Performance",
+                                    type: "leaf",
+                                    dataset_request: "Please provide 3PL performance metrics and SLA compliance reports (partner portals or dashboards)"
+                                },
+                                {
+                                    id: "rate_shopping",
+                                    label: "Carrier Rate Data",
+                                    type: "leaf",
+                                    dataset_request: "Please share real-time rate shopping data across carrier networks (TMS or rate platform API)"
+                                }
+                            ]
+                        },
+                        {
+                            id: "market_intelligence",
+                            label: "Market Intelligence",
+                            question: "What external market data sources do you monitor?",
+                            children: [
+                                {
+                                    id: "spot_rates",
+                                    label: "Spot Market Rates",
+                                    type: "leaf",
+                                    dataset_request: "Please provide access to spot market rate data for transportation (DAT, Freightwaves API, or broker feeds)"
+                                },
+                                {
+                                    id: "port_congestion",
+                                    label: "Port & Vessel Data",
+                                    type: "leaf",
+                                    dataset_request: "Please share port congestion data and vessel schedule tracking (terminal APIs or shipping line data)"
+                                },
+                                {
+                                    id: "commodity_pricing",
+                                    label: "Commodity Prices",
+                                    type: "leaf",
+                                    dataset_request: "Please provide commodity pricing data affecting input costs (market data feeds or procurement reports)"
+                                },
+                                {
+                                    id: "labor_market",
+                                    label: "Labor Market Data",
+                                    type: "leaf",
+                                    dataset_request: "Please share labor market data for warehouse locations (BLS data or HR analytics)"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "planning_analytics",
+                    label: "Planning & Analytics",
+                    question: "What planning and analytical data do you track?",
+                    children: [
+                        {
+                            id: "plan_vs_actual",
+                            label: "Planning vs. Actual",
+                            question: "Which planning accuracy metrics can you provide?",
+                            children: [
+                                {
+                                    id: "forecast_accuracy",
+                                    label: "Forecast Accuracy",
+                                    type: "leaf",
+                                    dataset_request: "Please provide forecast accuracy data by SKU, customer, and planner (planning system export)"
+                                },
+                                {
+                                    id: "labor_variance",
+                                    label: "Labor Planning",
+                                    type: "leaf",
+                                    dataset_request: "Please share planned vs. actual labor hours by task and facility (WMS or timekeeping system)"
+                                },
+                                {
+                                    id: "transport_budget",
+                                    label: "Transportation Budget",
+                                    type: "leaf",
+                                    dataset_request: "Please provide budgeted vs. actual transportation spend by lane (TMS and financial system data)"
+                                },
+                                {
+                                    id: "sop_adherence",
+                                    label: "S&OP Metrics",
+                                    type: "leaf",
+                                    dataset_request: "Please share S&OP plan adherence and variance analysis reports (planning system or Excel models)"
+                                }
+                            ]
+                        },
+                        {
+                            id: "network_flow",
+                            label: "Network Flow Data",
+                            question: "What inventory and network flow data is available?",
+                            children: [
+                                {
+                                    id: "sku_movement",
+                                    label: "SKU Movement",
+                                    type: "leaf",
+                                    dataset_request: "Please provide SKU-level movement data between facilities (WMS transfer records or inventory system)"
+                                },
+                                {
+                                    id: "cross_dock",
+                                    label: "Cross-Dock Operations",
+                                    type: "leaf",
+                                    dataset_request: "Please share cross-dock efficiency metrics and bypass opportunity analysis (WMS or yard management data)"
+                                },
+                                {
+                                    id: "reverse_logistics",
+                                    label: "Reverse Logistics",
+                                    type: "leaf",
+                                    dataset_request: "Please provide reverse logistics flow and disposition decision data (returns system or WMS)"
+                                },
+                                {
+                                    id: "multi_echelon",
+                                    label: "Multi-Echelon Inventory",
+                                    type: "leaf",
+                                    dataset_request: "Please share multi-echelon inventory positions and imbalance reports (inventory optimization system or ERP)"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Application state
+        let state = {
+            currentPath: [],
+            uploadedData: new Set(),
+            selectedOptions: {},
+            navigationHistory: []
+        };
+
+        // Get total leaf nodes count
+        function countTotalLeafNodes(node) {
+            if (node.type === 'leaf') return 1;
+            if (node.children) {
+                return node.children.reduce((sum, child) => sum + countTotalLeafNodes(child), 0);
+            }
+            if (node.categories) {
+                return node.categories.reduce((sum, cat) => sum + countTotalLeafNodes(cat), 0);
+            }
+            return 0;
+        }
+
+        const totalDatasets = countTotalLeafNodes(dataStructure);
+
+        // Update progress bar
+        function updateProgress() {
+            const percentage = Math.round((state.uploadedData.size / totalDatasets) * 100);
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+            document.getElementById('progressText').textContent = `${percentage}%`;
+            document.getElementById('dataCount').textContent = state.uploadedData.size;
+        }
+
+        // Update breadcrumb
+        function updateBreadcrumb() {
+            const breadcrumb = document.getElementById('breadcrumb');
+            let html = '<div class="breadcrumb-item">Start</div>';
+            
+            state.currentPath.forEach(item => {
+                html += `<div class="breadcrumb-item">${item.label}</div>`;
+            });
+            
+            breadcrumb.innerHTML = html;
+        }
+
+        // Get current node from path
+        function getCurrentNode() {
+            if (state.currentPath.length === 0) {
+                return dataStructure;
+            }
+            
+            let node = dataStructure;
+            state.currentPath.forEach(pathItem => {
+                const children = node.categories || node.children;
+                node = children.find(child => child.id === pathItem.id);
+            });
+            
+            return node;
+        }
+
+        // Render current view
+        function render() {
+            const content = document.getElementById('content');
+            const node = getCurrentNode();
+            
+            if (!node) {
+                renderSummary();
+                return;
+            }
+
+            if (node.type === 'leaf') {
+                renderLeafNode(node);
+            } else {
+                renderBranchNode(node);
+            }
+            
+            updateBreadcrumb();
+            updateProgress();
+        }
+
+        // Render branch node with children options
+        function renderBranchNode(node) {
+            const content = document.getElementById('content');
+            const question = node.root_question || node.question;
+            const children = node.categories || node.children || [];
+            const pathKey = state.currentPath.map(p => p.id).join('_') || 'root';
+            
+            // Check if this is a leaf parent (all children are leaves)
+            const isLeafParent = children.every(child => child.type === 'leaf');
+            
+            if (isLeafParent) {
+                // Multiple selection for leaf nodes
+                let html = `
+                    <div class="question-section">
+                        <h2 class="question">${question}</h2>
+                        <p style="color: #6c757d; margin-bottom: 20px;">Select all that apply:</p>
+                        <div class="options">
+                `;
+                
+                children.forEach(child => {
+                    const isUploaded = state.uploadedData.has(child.id);
+                    const isSelected = state.selectedOptions[pathKey]?.includes(child.id);
+                    
+                    html += `
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="${child.id}" value="${child.id}" 
+                                ${isSelected ? 'checked' : ''}
+                                ${isUploaded ? 'disabled' : ''}>
+                            <label for="${child.id}">
+                                <div class="option-card ${isUploaded ? 'uploaded' : ''}">
+                                    <div class="option-title">
+                                        ${child.label} ${isUploaded ? '✓' : ''}
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                        <div class="navigation">
+                            ${state.currentPath.length > 0 ? '<button class="btn btn-secondary" onclick="navigateBack()">← Back</button>' : ''}
+                            <button class="btn btn-primary" onclick="handleMultipleSelection()">Continue →</button>
+                        </div>
+                    </div>
+                `;
+                
+                content.innerHTML = html;
+            } else {
+                // Single selection for branch nodes
+                let html = `
+                    <div class="question-section">
+                        <h2 class="question">${question}</h2>
+                        <div class="options">
+                `;
+                
+                children.forEach(child => {
+                    const childLeafCount = countTotalLeafNodes(child);
+                    const childUploadedCount = countUploadedInNode(child);
+                    const progressText = childUploadedCount > 0 ? ` (${childUploadedCount}/${childLeafCount} datasets)` : '';
+                    
+                    html += `
+                        <div class="option-card" onclick="navigateTo('${child.id}')">
+                            <div class="option-title">${child.label}${progressText}</div>
+                            ${child.question ? `<div class="option-description">${child.question}</div>` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                        <div class="navigation">
+                            ${state.currentPath.length > 0 ? '<button class="btn btn-secondary" onclick="navigateBack()">← Back</button>' : ''}
+                            ${state.uploadedData.size > 0 ? '<button class="btn btn-success" onclick="renderSummary()">View Summary →</button>' : ''}
+                        </div>
+                    </div>
+                `;
+                
+                content.innerHTML = html;
+            }
+        }
+
+        // Render leaf node with upload option
+        function renderLeafNode(node) {
+            const content = document.getElementById('content');
+            const isUploaded = state.uploadedData.has(node.id);
+            
+            let html = `
+                <div class="question-section">
+                    <h2 class="question">${node.label}</h2>
+                    <div class="dataset-request">
+                        <h3>Data Request:</h3>
+                        <p>${node.dataset_request}</p>
+                    </div>
+                    <div class="upload-section">
+                        ${isUploaded ? 
+                            '<button class="btn btn-success" disabled>✓ Data Uploaded</button>' :
+                            '<button class="btn btn-primary" onclick="simulateUpload(\'' + node.id + '\')">📁 Simulate Data Upload</button>'
+                        }
+                    </div>
+                    <div class="navigation">
+                        <button class="btn btn-secondary" onclick="navigateBack()">← Back</button>
+                    </div>
+                </div>
+            `;
+            
+            content.innerHTML = html;
+        }
+
+        // Handle multiple selection
+        function handleMultipleSelection() {
+            const pathKey = state.currentPath.map(p => p.id).join('_') || 'root';
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)');
+            const selected = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (selected.length > 0) {
+                state.selectedOptions[pathKey] = selected;
+                // Navigate to first selected item for upload
+                const firstSelected = selected[0];
+                navigateTo(firstSelected);
+            } else {
+                alert('Please select at least one option to continue');
+            }
+        }
+
+        // Count uploaded datasets in a node
+        function countUploadedInNode(node) {
+            if (node.type === 'leaf') {
+                return state.uploadedData.has(node.id) ? 1 : 0;
+            }
+            const children = node.children || [];
+            return children.reduce((sum, child) => sum + countUploadedInNode(child), 0);
+        }
+
+        // Navigate to a child node
+        function navigateTo(childId) {
+            const node = getCurrentNode();
+            const children = node.categories || node.children;
+            const child = children.find(c => c.id === childId);
+            
+            if (child) {
+                state.currentPath.push({id: child.id, label: child.label});
+                render();
+            }
+        }
+
+        // Navigate back
+        function navigateBack() {
+            if (state.currentPath.length > 0) {
+                const pathKey = state.currentPath.map(p => p.id).join('_');
+                const parentNode = getCurrentNode();
+                
+                // Check if we're leaving a leaf parent with multiple selections
+                if (parentNode && parentNode.type === 'leaf') {
+                    const parent = state.currentPath[state.currentPath.length - 1];
+                    const parentPathKey = state.currentPath.slice(0, -1).map(p => p.id).join('_') || 'root';
+                    const selections = state.selectedOptions[parentPathKey] || [];
+                    const currentIndex = selections.indexOf(parent.id);
+                    
+                    if (currentIndex < selections.length - 1) {
+                        // Move to next selected item
+                        state.currentPath.pop();
+                        const nextId = selections[currentIndex + 1];
+                        navigateTo(nextId);
+                        return;
+                    }
+                }
+                
+                state.currentPath.pop();
+                render();
+            }
+        }
+
+        // Simulate file upload
+        function simulateUpload(nodeId) {
+            state.uploadedData.add(nodeId);
+            
+            // Check if there are more selections to process
+            const parentPathKey = state.currentPath.slice(0, -1).map(p => p.id).join('_') || 'root';
+            const selections = state.selectedOptions[parentPathKey] || [];
+            const currentNode = state.currentPath[state.currentPath.length - 1];
+            const currentIndex = selections.indexOf(currentNode.id);
+            
+            if (currentIndex >= 0 && currentIndex < selections.length - 1) {
+                // Automatically navigate to next selected item
+                setTimeout(() => {
+                    state.currentPath.pop();
+                    const nextId = selections[currentIndex + 1];
+                    navigateTo(nextId);
+                }, 500);
+            } else {
+                render();
+            }
+        }
+
+        // Render summary
+        function renderSummary() {
+            const content = document.getElementById('content');
+            
+            // Group uploaded data by category
+            const summary = {};
+            state.uploadedData.forEach(dataId => {
+                const category = findCategoryForData(dataId);
+                if (category) {
+                    if (!summary[category.label]) {
+                        summary[category.label] = [];
+                    }
+                    const node = findNodeById(dataId);
+                    if (node) {
+                        summary[category.label].push(node.label);
+                    }
+                }
+            });
+            
+            let html = `
+                <div class="summary">
+                    <h2>Data Collection Summary</h2>
+                    <p style="color: #6c757d; margin-bottom: 30px;">
+                        You've identified ${state.uploadedData.size} datasets out of ${totalDatasets} possible datasets
+                    </p>
+                    
+                    <div class="summary-grid">
+            `;
+            
+            Object.entries(summary).forEach(([category, items]) => {
+                html += `
+                    <div class="summary-card">
+                        <h4>${category}</h4>
+                        <ul class="summary-items">
+                            ${items.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <button class="btn btn-primary" onclick="exportSummary()">📥 Export Summary</button>
+                        <button class="btn btn-secondary" onclick="resetAndStart()">🔄 Start Over</button>
+                    </div>
+                </div>
+            `;
+            
+            content.innerHTML = html;
+        }
+
+        // Find category for a data node
+        function findCategoryForData(dataId, node = dataStructure, parentCategory = null) {
+            if (node.type === 'leaf' && node.id === dataId) {
+                return parentCategory;
+            }
+            
+            const children = node.categories || node.children || [];
+            for (const child of children) {
+                const category = node.categories ? child : parentCategory;
+                const result = findCategoryForData(dataId, child, category || node);
+                if (result) return result;
+            }
+            
+            return null;
+        }
+
+        // Find node by ID
+        function findNodeById(nodeId, node = dataStructure) {
+            if (node.id === nodeId) return node;
+            
+            const children = node.categories || node.children || [];
+            for (const child of children) {
+                const result = findNodeById(nodeId, child);
+                if (result) return result;
+            }
+            
+            return null;
+        }
+
+        // Export summary
+        function exportSummary() {
+            const summary = {
+                timestamp: new Date().toISOString(),
+                totalDatasets: state.uploadedData.size,
+                datasets: Array.from(state.uploadedData).map(id => {
+                    const node = findNodeById(id);
+                    return {
+                        id: id,
+                        label: node?.label,
+                        request: node?.dataset_request
+                    };
+                })
+            };
+            
+            const blob = new Blob([JSON.stringify(summary, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'supply-chain-data-summary.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Reset and start over
+        function resetAndStart() {
+            state = {
+                currentPath: [],
+                uploadedData: new Set(),
+                selectedOptions: {},
+                navigationHistory: []
+            };
+            render();
+        }
+
+        // Initialize
+        render();
+    </script>
+</body>
+</html>
